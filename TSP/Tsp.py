@@ -1,5 +1,7 @@
 import math
 import copy
+import matplotlib.pyplot as plt
+import matplotlib.lines as lines
 
 n = 4
 
@@ -20,6 +22,7 @@ def nearest_neighbor(nodes):
     global n
     closest_dist = math.inf
     min_dist = 0
+    begin = nodes[0]
     start_node = nodes[0]
     start_node['visited'] = True
     sorted_nodes = [start_node]
@@ -39,6 +42,8 @@ def nearest_neighbor(nodes):
         closest_node['visited'] = True
         sorted_nodes.append(closest_node)
         start_node = closest_node
+    sorted_nodes.append(begin)
+    min_dist = min_dist + calculate_dist(start_node, begin)
     return sorted_nodes, min_dist
 
 
@@ -65,23 +70,61 @@ def exhaustive_search(nodes, start_node, dist, permutation_node):
             permutation_node.remove(node)
             total_distance = total_distance - distance
     if min_dist == math.inf:
+        total_distance = total_distance + calculate_dist(start_node, nodes[0])
+        print(total_distance)
+        print(permutation_node[:])
         return total_distance, permutation_node[:]
     return min_dist, opt_route
+
+
+def draw(nodes_near, nodes_exhaustive):
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 5))
+    axes[0].set_title('Nearest Neighbor')
+    axes[0].set_xlabel('X')
+    axes[0].set_ylabel('Y')
+    axes[1].set_xlabel('X')
+    axes[1].set_ylabel('Y')
+    axes[1].set_title('Exhaustive Search')
+    for node in nodes_near:
+        axes[0].scatter(node['x'], node['y'], color='black', s=100)
+    for node in nodes_exhaustive:
+        axes[1].scatter(node['x'], node['y'], color='black', s=100)
+    for i in range(nodes_near.__len__() - 1):
+        axes[0].add_line(
+            lines.Line2D([nodes_near[i]['x'], nodes_near[i + 1]['x']],
+                         [nodes_near[i]['y'], nodes_near[i + 1]['y']]))
+        axes[0].text((nodes_near[i]['x'] + nodes_near[i + 1]['x']) / 2,
+                     (nodes_near[i]['y'] + nodes_near[i + 1]['y']) / 2,
+                     i + 1, fontsize=15)
+    for i in range(nodes_exhaustive.__len__() - 1):
+        axes[1].add_line(
+            lines.Line2D([nodes_exhaustive[i]['x'], nodes_exhaustive[i + 1]['x']],
+                         [nodes_exhaustive[i]['y'], nodes_exhaustive[i + 1]['y']]))
+    for i in range(nodes_exhaustive.__len__() - 1):
+        axes[1].add_line(
+            lines.Line2D([nodes_exhaustive[i]['x'], nodes_exhaustive[i + 1]['x']],
+                         [nodes_exhaustive[i]['y'], nodes_exhaustive[i + 1]['y']]))
+        axes[1].text((nodes_exhaustive[i]['x'] + nodes_exhaustive[i + 1]['x']) / 2,
+                     (nodes_exhaustive[i]['y'] + nodes_exhaustive[i + 1]['y']) / 2,
+                     i + 1, fontsize=15)
+    plt.show()
 
 
 def main():
     nodes = get_input()
     # nodes = [{'visited': False, 'x': 3, 'y': 4}, {'visited': False, 'x': 6, 'y': 8},
     #          {'visited': False, 'x': 50, 'y': 8}, {'visited': False, 'x': 11, 'y': 7}]
-    # print(nodes)
     sorted_nodes, closet_dist = nearest_neighbor(copy.deepcopy(nodes))
     print('-----Solve With Nearest Neighbor-----')
     print(sorted_nodes)
     print(closet_dist)
+    print('-------------------------------------')
     min_dist, opt_route = exhaustive_search(nodes, nodes[0], 0, [])
     print('-----Solve With Exhaustive Search-----')
+    opt_route.append(nodes[0])
     print(opt_route)
     print(min_dist)
+    draw(sorted_nodes, opt_route)
 
 
 if __name__ == '__main__':
