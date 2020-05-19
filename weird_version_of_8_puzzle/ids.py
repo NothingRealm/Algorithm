@@ -46,22 +46,22 @@ def generate_childs(element):
     new_nodes[i][j] = jeffery
     if j - 1 >= 0 and element['direction'] != 'right':
         new_nodes[i][j], new_nodes[i][j - 1] = new_nodes[i][j - 1], new_nodes[i][j] 
-        childs.append({'depth': element['depth'] + 1, 'content': new_nodes, 'childs': [], 'direction': 'left'})
+        childs.append({'depth': element['depth'] + 1, 'content': new_nodes, 'childs': [], 'direction': 'left', 'parent': element})
     new_nodes       = copy.deepcopy(element['content'])
     new_nodes[i][j] = jeffery
     if j + 1 < max_j and element['direction'] != 'left':
         new_nodes[i][j], new_nodes[i][j + 1] = new_nodes[i][j + 1], new_nodes[i][j] 
-        childs.append({'depth': element['depth'] + 1, 'content': new_nodes, 'childs': [], 'direction': 'right'})
+        childs.append({'depth': element['depth'] + 1, 'content': new_nodes, 'childs': [], 'direction': 'right', 'parent': element})
     new_nodes       = copy.deepcopy(element['content'])
     new_nodes[i][j] = jeffery
     if i - 1 >= 0 and element['direction'] != 'down':
         new_nodes[i][j], new_nodes[i - 1][j] = new_nodes[i - 1][j], new_nodes[i][j] 
-        childs.append({'depth': element['depth'] + 1, 'content': new_nodes, 'childs': [], 'direction': 'up'})
+        childs.append({'depth': element['depth'] + 1, 'content': new_nodes, 'childs': [], 'direction': 'up', 'parent': element})
     new_nodes       = copy.deepcopy(element['content'])
     new_nodes[i][j] = jeffery
     if i + 1 < max_i and element['direction'] != 'up':
         new_nodes[i][j], new_nodes[i + 1][j] = new_nodes[i + 1][j], new_nodes[i][j] 
-        childs.append({'depth': element['depth'] + 1, 'content': new_nodes, 'childs': [], 'direction': 'down'})
+        childs.append({'depth': element['depth'] + 1, 'content': new_nodes, 'childs': [], 'direction': 'down', 'parent': element})
     element['childs'] = childs
 
 
@@ -80,7 +80,17 @@ def found(element):
             a2 = content[i][j+1]
             if not a1['h'] < a2['h'] or not a1['c'] == a2['c']:
                 return False
-    print(content)
+    print('depth is {}'.format(element['depth']))
+    pattern = []
+    x = element
+    while True:
+        if x['parent'] == None: 
+            break
+        pattern.insert(0, x['direction'])
+        x = x['parent']
+    print(pattern)
+    for row in content:
+        print(row)
     return True
 
 
@@ -101,7 +111,7 @@ def ids(tree):
 def main():
     global idepth
     get_input()
-    while not ids({'depth': 0, 'content': nodes, 'childs': [], 'direction': None}):
+    while not ids({'depth': 0, 'content': nodes, 'childs': [], 'direction': None, 'parent': None}):
         idepth += 1
         print(idepth)
     print('found')
